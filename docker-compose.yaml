@@ -16,7 +16,7 @@ services:
       - ./chain:/home/coinuser/.bitcoin
       - ./bitcoin/config-regtest.conf:/data/config.conf
     command: 
-      -chain=regtest
+      -chain=test
       -printtoconsole
       -dnsseed=0
       -fixedseeds=0
@@ -38,7 +38,7 @@ services:
       context: .
       dockerfile: Dockerfile.bfgminer
     image: bfgminer
-    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=myW7sz5vgBRpnwcuTwBm7mnmuMNg3rVtrZ
+    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=moQC2u1ruMCgtDuwjTQhkeC16qKf1ZtXmM
     volumes:
       - ./bfgminer/bfgminer.conf:/app/bfgminer.conf
     networks:
