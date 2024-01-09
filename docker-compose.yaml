@@ -1,0 +1,49 @@
+version: "3.7"
+
+services:
+  bitcoind:
+    image: cryptodockerhub/bitcoin-core:latest
+    container_name: bitcoind
+    restart: on-failure
+    ports:
+      - 8332:8332
+      - 8333:8333
+      - 18332:18332
+      - 18333:18333
+      - 18443:18443
+      - 18444:18444
+    volumes:
+      - ./chain:/home/coinuser/.bitcoin
+      - ./bitcoin/config-regtest.conf:/data/config.conf
+    command: 
+      -chain=regtest
+      -printtoconsole
+      -dnsseed=0
+      -fixedseeds=0
+      -conf=/data/config.conf
+    networks:
+      - bitcoin
+  bitcoin-node-manager:
+    image: php:8.2-apache
+    container_name: bitcoin-node-manager
+    ports:
+      - 8000:80
+    volumes:
+      - ./bitcoin-node-manager:/var/www/html
+    networks: 
+      - bitcoin
+  bfgminer:
+    container_name: bfgminer
+    build:
+      context: .
+      dockerfile: Dockerfile.bfgminer
+    image: bfgminer
+    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=myW7sz5vgBRpnwcuTwBm7mnmuMNg3rVtrZ
+    volumes:
+      - ./bfgminer/bfgminer.conf:/app/bfgminer.conf
+    networks:
+      - bitcoin
+networks:
+  bitcoin:
+    name: bitcoin
+    driver: bridge
