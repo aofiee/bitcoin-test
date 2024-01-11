@@ -1,0 +1,34 @@
+FROM ubuntu:16.04
+
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    autoconf \
+    automake \
+    pkg-config \
+    libcurl4-openssl-dev \
+    libudev-dev \
+    libusb-1.0-0-dev \
+    libncurses5-dev \
+    libtool \
+    libc6-dev \
+    libudev-dev \
+    uthash-dev \
+    libjansson-dev \
+    ocl-icd-opencl-dev \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone --branch v2.2.0 --single-branch https://github.com/ckolivas/cgminer.git .
+
+RUN ./autogen.sh \
+ && CFLAGS="-O2 -Wall -march=native" ./configure --enable-cpumining \
+ && make \
+ && make install
+
+WORKDIR /app
+
+EXPOSE 4028

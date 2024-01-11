@@ -14,9 +14,9 @@ services:
       - 18444:18444
     volumes:
       - ./chain:/home/coinuser/.bitcoin
-      - ./bitcoin/config-regtest.conf:/data/config.conf
+      - ./config/bitcoin.conf:/data/config.conf
     command: 
-      -chain=test
+      -chain=regtest
       -printtoconsole
       -dnsseed=0
       -fixedseeds=0
@@ -32,18 +32,33 @@ services:
       - ./bitcoin-node-manager:/var/www/html
     networks: 
       - bitcoin
+  cgminer:
+    container_name: cgminer
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile.cgminer
+    image: cgminer
+    volumes:
+      - ./config/cgminer.conf:/app/cgminer.conf
+    entrypoint: ./cgminer -c /app/cgminer.conf
+    ports:
+          - 4028:4028
+    networks:
+      - bitcoin
   bfgminer:
     container_name: bfgminer
     build:
       context: .
       dockerfile: Dockerfile.bfgminer
     image: bfgminer
-    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=moQC2u1ruMCgtDuwjTQhkeC16qKf1ZtXmM
+    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=mtDkvXfrkUXBNP3c1bXMxfLhJJcdjgzfgg
     volumes:
-      - ./bfgminer/bfgminer.conf:/app/bfgminer.conf
+      - ./config/bfgminer.conf:/app/bfgminer.conf
     networks:
       - bitcoin
 networks:
   bitcoin:
     name: bitcoin
     driver: bridge
+    # --generate-to=mtDkvXfrkUXBNP3c1bXMxfLhJJcdjgzfgg
