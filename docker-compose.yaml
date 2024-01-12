@@ -4,7 +4,7 @@ services:
   bitcoind:
     image: cryptodockerhub/bitcoin-core:latest
     container_name: bitcoind
-    restart: on-failure
+    restart: always
     ports:
       - 8332:8332
       - 8333:8333
