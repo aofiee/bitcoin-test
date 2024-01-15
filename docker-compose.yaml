@@ -16,7 +16,7 @@ services:
       - ./chain:/home/coinuser/.bitcoin
       - ./config/bitcoin.conf:/data/config.conf
     command: 
-      -chain=regtest
+      -chain=test
       -printtoconsole
       -dnsseed=0
       -fixedseeds=0
