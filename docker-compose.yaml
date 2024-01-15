@@ -32,6 +32,18 @@ services:
       - ./bitcoin-node-manager:/var/www/html
     networks: 
       - bitcoin
+  cpuminer:
+    container_name: cpuminer
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile.cpuminer
+    image: cpuminer
+    volumes:
+      - ./config/cpuminer.conf:/app/cpuminer.conf
+    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=mtDkvXfrkUXBNP3c1bXMxfLhJJcdjgzfgg
+    networks:
+      - bitcoin
   cgminer:
     container_name: cgminer
     restart: on-failure
@@ -61,4 +73,3 @@ networks:
   bitcoin:
     name: bitcoin
     driver: bridge
-    # --generate-to=mtDkvXfrkUXBNP3c1bXMxfLhJJcdjgzfgg

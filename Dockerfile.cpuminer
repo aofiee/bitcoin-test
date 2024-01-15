@@ -1,0 +1,13 @@
+FROM            ubuntu:16.04
+
+WORKDIR /app
+RUN apt-get update -qq && \
+    apt-get install -qqy automake libcurl4-openssl-dev git make gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone --branch v2.5.1 --single-branch https://github.com/pooler/cpuminer.git .
+
+RUN ./autogen.sh && \
+    ./configure CFLAGS="-O3" && \
+    make \
+    && make install
