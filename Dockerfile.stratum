@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:22.04
 
 # docker run --network=bitcoin -it ubuntu:16.04
 WORKDIR /app
@@ -7,15 +7,29 @@ RUN apt-get update && \
     apt-get install -y  build-essential libtool \
     autotools-dev automake pkg-config libssl-dev \
     libevent-dev bsdmainutils libboost-all-dev \
-    python \
-    python-twisted \
-    python2 \
-    python-pip \
+    python3-twisted \
     git \
+    python3.9 python3-pip \
+    curl \
+    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/Crypto-Expert/stratum-mining.git
 RUN git clone https://github.com/Tydus/litecoin_scrypt.git
 RUN git clone https://github.com/ahmedbodi/stratum.git
-RUN pip install ecdsa
-    # python3 python3-pip \
+
+RUN python3 -m pip install ecdsa
+RUN python3 -m pip install autobahn
+RUN python3 -m pip install simplejson
+
+RUN cd /app/stratum-mining \
+    && git submodule init \
+    && git submodule update
+
+RUN cd /app/litecoin_scrypt \
+    && python3 setup.py install
+
+RUN cd /app/stratum \
+    && python setup.py install
+
+ENTRYPOINT [ "tail -f /var/log/faillog" ]
