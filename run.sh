@@ -18,6 +18,20 @@ else
     sed -i '' "s/- POSTGRES_PASSWORD=[^ ]*/- POSTGRES_PASSWORD=${DBPASSWORD}/" "$docker_compose_file"
 fi
 
+if [ ! -e "config/stratum.py" ]; then
+    echo "Please create config/stratum.py file"
+    exit 1
+else
+    echo "Setup Stratum minning environment variables"
+    stratum_config_file="config/stratum.py"
+    sed -i '' "s/DATABASE_DRIVER = .*/DATABASE_DRIVER = '$DB'/" "$stratum_config_file"
+    sed -i '' "s/DB_PGSQL_HOST = .*/DB_PGSQL_HOST = '$DBHOST'/" "$stratum_config_file"
+    sed -i '' "s/DB_PGSQL_DBNAME = .*/DB_PGSQL_DBNAME = '$DBNAME'/" "$stratum_config_file"
+    sed -i '' "s/DB_PGSQL_USER = .*/DB_PGSQL_USER = '$DBUSER'/" "$stratum_config_file"
+    sed -i '' "s/DB_PGSQL_PASS = .*/DB_PGSQL_PASS = '$DBPASSWORD'/" "$stratum_config_file"
+
+fi
+
 if [ ! -e "bitcoin-node-manager/src/Config.php" ]; then
     if [ ! -e "bitcoin-node-manager/src/Config.sample.php" ]; then
         echo "Please create bitcoin-node-manager/src/Config.php file"
@@ -186,4 +200,6 @@ if [ "$NODEMNG" = "true" ]; then
     docker-compose up bitcoin-node-manager -d
 fi
 
+docker-compose up stratum -d
+docker-compose up stratumdb -d
 docker-compose logs --follow

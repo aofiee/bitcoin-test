@@ -83,16 +83,16 @@ LISTEN_WSS_TRANSPORT = None
 PASSWORD_SALT = 'some_crazy_string'
 
 # ******************** Database  *********************
-DATABASE_DRIVER = 'mysql'       # Options: none, sqlite, postgresql or mysql
+DATABASE_DRIVER = 'postgresql'
 DATABASE_EXTEND = False         # SQLite and PGSQL Only!
 
 # SQLite
 DB_SQLITE_FILE = 'pooldb.sqlite'
 # Postgresql
-DB_PGSQL_HOST = 'localhost'
-DB_PGSQL_DBNAME = 'pooldb'
-DB_PGSQL_USER = 'pooldb'
-DB_PGSQL_PASS = '**empty**'
+DB_PGSQL_HOST = 'stratumdb'
+DB_PGSQL_DBNAME = 'stratum'
+DB_PGSQL_USER = 'stratum'
+DB_PGSQL_PASS = 'stratum'
 DB_PGSQL_SCHEMA = 'public'
 # MySQL
 DB_MYSQL_HOST = 'localhost'
