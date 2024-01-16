@@ -14,6 +14,8 @@ else
     echo "Setup Chain"
     docker_compose_file="docker-compose.yaml"
     sed -i '' "s/-chain=[^ ]*/-chain=$CHAIN/" "$docker_compose_file"
+    sed -i '' "s/- POSTGRES_USER=[^ ]*/- POSTGRES_USER=${DBUSER}/" "$docker_compose_file"
+    sed -i '' "s/- POSTGRES_PASSWORD=[^ ]*/- POSTGRES_PASSWORD=${DBPASSWORD}/" "$docker_compose_file"
 fi
 
 if [ ! -e "bitcoin-node-manager/src/Config.php" ]; then

@@ -69,6 +69,34 @@ services:
       - ./config/bfgminer.conf:/app/bfgminer.conf
     networks:
       - bitcoin
+  stratum:
+    container_name: stratum
+    build:
+      context: .
+      dockerfile: Dockerfile.stratum
+    image: stratum
+    ports:
+      - 8008:8000
+      - 3333:3333
+    entrypoint: twistd -ny ./stratum/launcher.tac
+    # entrypoint: ./stratum-mining.py -o localhost:8332 -u n3uD1TSmc2HNs4bonnnBtURURLqqmcHnYd -p x
+    volumes:
+      - ./config/stratum.py:/app/stratum-mining/conf/config.py
+    networks:
+      - bitcoin
+  stratumdb:
+    image: postgres:14.1-alpine
+    restart: always
+    container_name: stratumdb
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    volumes: 
+      - db:/var/lib/postgresql/data
+    networks:
+      - bitcoin
 networks:
   bitcoin:
     name: bitcoin
