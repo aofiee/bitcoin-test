@@ -31,6 +31,10 @@ else
     sed -i '' "s/DB_MYSQL_DBNAME = .*/DB_MYSQL_DBNAME = '$DBNAME'/" "$stratum_config_file"
     sed -i '' "s/DB_MYSQL_USER = .*/DB_MYSQL_USER = '$DBUSER'/" "$stratum_config_file"
     sed -i '' "s/DB_MYSQL_PASS = .*/DB_MYSQL_PASS = '$DBPASSWORD'/" "$stratum_config_file"
+    sed -i '' "s/COINDAEMON_TRUSTED_HOST = .*/COINDAEMON_TRUSTED_HOST = '$RPCIP'/" "$stratum_config_file"
+    sed -i '' "s/COINDAEMON_TRUSTED_PORT = .*/COINDAEMON_TRUSTED_PORT = $RPCPORT/" "$stratum_config_file"
+    sed -i '' "s/COINDAEMON_TRUSTED_USER = .*/COINDAEMON_TRUSTED_USER = '$RPCUSER'/" "$stratum_config_file"
+    sed -i '' "s/COINDAEMON_TRUSTED_PASSWORD = .*/COINDAEMON_TRUSTED_PASSWORD = '$RPCPASSWORD'/" "$stratum_config_file"
 
 fi
 

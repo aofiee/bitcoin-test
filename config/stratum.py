@@ -10,8 +10,8 @@ You NEED to set the parameters in BASIC SETTINGS
 
 CENTRAL_WALLET = 'set_valid_addresss_in_config!'                # Local coin address where money goes
 
-COINDAEMON_TRUSTED_HOST = 'bicoind'
-COINDAEMON_TRUSTED_PORT = 18443
+COINDAEMON_TRUSTED_HOST = 'bitcoind'
+COINDAEMON_TRUSTED_PORT = 18333
 COINDAEMON_TRUSTED_USER = 'ddhakka'
 COINDAEMON_TRUSTED_PASSWORD = 'password'
 
