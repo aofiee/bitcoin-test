@@ -14,8 +14,10 @@ else
     echo "Setup Chain"
     docker_compose_file="docker-compose.yaml"
     sed -i '' "s/-chain=[^ ]*/-chain=$CHAIN/" "$docker_compose_file"
-    sed -i '' "s/- POSTGRES_USER=[^ ]*/- POSTGRES_USER=${DBUSER}/" "$docker_compose_file"
-    sed -i '' "s/- POSTGRES_PASSWORD=[^ ]*/- POSTGRES_PASSWORD=${DBPASSWORD}/" "$docker_compose_file"
+    sed -i '' "s/- MYSQL_USER=[^ ]*/- MYSQL_USER=${DBUSER}/" "$docker_compose_file"
+    sed -i '' "s/- MYSQL_PASSWORD=[^ ]*/- MYSQL_PASSWORD=${DBPASSWORD}/" "$docker_compose_file"
+    sed -i '' "s/- MYSQL_DATABASE=[^ ]*/- MYSQL_DATABASE=${DBNAME}/" "$docker_compose_file"
+    sed -i '' "s/- MYSQL_ROOT_PASSWORD=[^ ]*/- MYSQL_ROOT_PASSWORD=${DBPASSWORD}/" "$docker_compose_file"
 fi
 
 if [ ! -e "config/stratum.py" ]; then
@@ -25,10 +27,10 @@ else
     echo "Setup Stratum minning environment variables"
     stratum_config_file="config/stratum.py"
     sed -i '' "s/DATABASE_DRIVER = .*/DATABASE_DRIVER = '$DB'/" "$stratum_config_file"
-    sed -i '' "s/DB_PGSQL_HOST = .*/DB_PGSQL_HOST = '$DBHOST'/" "$stratum_config_file"
-    sed -i '' "s/DB_PGSQL_DBNAME = .*/DB_PGSQL_DBNAME = '$DBNAME'/" "$stratum_config_file"
-    sed -i '' "s/DB_PGSQL_USER = .*/DB_PGSQL_USER = '$DBUSER'/" "$stratum_config_file"
-    sed -i '' "s/DB_PGSQL_PASS = .*/DB_PGSQL_PASS = '$DBPASSWORD'/" "$stratum_config_file"
+    sed -i '' "s/DB_MYSQL_HOST = .*/DB_MYSQL_HOST = '$DBHOST'/" "$stratum_config_file"
+    sed -i '' "s/DB_MYSQL_DBNAME = .*/DB_MYSQL_DBNAME = '$DBNAME'/" "$stratum_config_file"
+    sed -i '' "s/DB_MYSQL_USER = .*/DB_MYSQL_USER = '$DBUSER'/" "$stratum_config_file"
+    sed -i '' "s/DB_MYSQL_PASS = .*/DB_MYSQL_PASS = '$DBPASSWORD'/" "$stratum_config_file"
 
 fi
 
@@ -101,6 +103,20 @@ is_bitcoind_ready() {
     fi
 
     if docker exec bitcoind bash -c "bitcoin-cli -chain=${CHAIN} -rpcuser=${RPCUSER} -rpcpassword=${RPCPASSWORD} -rpcport=${RPCPORT} getblockchaininfo"  &>/dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+is_stratumdb_ready() {
+    local container_name="stratumdb"
+    local running=$(docker inspect -f "{{.State.Running}}" $container_name 2>/dev/null)
+    if [ "$running" != "true" ]; then
+        return 1
+    fi
+
+    if docker exec stratumdb bash -c "mysql -u${DBUSER} -p${DBPASSWORD} -h${DBHOST} -e 'show databases;'"  &>/dev/null; then
         return 0
     else
         return 1
@@ -200,6 +216,11 @@ if [ "$NODEMNG" = "true" ]; then
     docker-compose up bitcoin-node-manager -d
 fi
 
-docker-compose up stratum -d
 docker-compose up stratumdb -d
+echo "Waiting for stratumdb to be ready..."
+until is_stratumdb_ready; do
+    echo "Waiting..."
+    sleep 5
+done
+docker-compose up stratum -d
 docker-compose logs --follow

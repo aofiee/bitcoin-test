@@ -83,7 +83,7 @@ LISTEN_WSS_TRANSPORT = None
 PASSWORD_SALT = 'some_crazy_string'
 
 # ******************** Database  *********************
-DATABASE_DRIVER = 'postgresql'
+DATABASE_DRIVER = 'mysql'
 DATABASE_EXTEND = False         # SQLite and PGSQL Only!
 
 # SQLite
@@ -95,10 +95,10 @@ DB_PGSQL_USER = 'stratum'
 DB_PGSQL_PASS = 'stratum'
 DB_PGSQL_SCHEMA = 'public'
 # MySQL
-DB_MYSQL_HOST = 'localhost'
-DB_MYSQL_DBNAME = 'pooldb'
-DB_MYSQL_USER = 'pooldb'
-DB_MYSQL_PASS = '**empty**'
+DB_MYSQL_HOST = 'stratumdb'
+DB_MYSQL_DBNAME = 'stratum'
+DB_MYSQL_USER = 'stratum'
+DB_MYSQL_PASS = 'stratum'
 DB_MYSQL_PORT = 3306            # Default port for MySQL
 
 # ******************** Adv. DB Settings *********************
