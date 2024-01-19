@@ -16,7 +16,7 @@ services:
       - ./chain:/home/coinuser/.bitcoin
       - ./config/bitcoin.conf:/data/config.conf
     command: 
-      -chain=test
+      -chain=regtest
       -printtoconsole
       -dnsseed=0
       -fixedseeds=0
@@ -41,7 +41,7 @@ services:
     image: cpuminer
     volumes:
       - ./config/cpuminer.conf:/app/cpuminer.conf
-    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=myZ5YPgGzzUXBTf4vSNpq3WHRoDcSUhFYL
+    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=mhiP8XpZQKPotKRBLKhNrxdd7DRm7qJ3XR
     networks:
       - bitcoin
   cgminer:
@@ -64,7 +64,7 @@ services:
       context: .
       dockerfile: Dockerfile.bfgminer
     image: bfgminer
-    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=myZ5YPgGzzUXBTf4vSNpq3WHRoDcSUhFYL
+    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=mhiP8XpZQKPotKRBLKhNrxdd7DRm7qJ3XR
     volumes:
       - ./config/bfgminer.conf:/app/bfgminer.conf
     networks:

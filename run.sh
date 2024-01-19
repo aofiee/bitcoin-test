@@ -13,11 +13,11 @@ if [ ! -e "docker-compose.yaml" ]; then
 else
     echo "Setup Chain"
     docker_compose_file="docker-compose.yaml"
-    sed -i '' "s/-chain=[^ ]*/-chain=$CHAIN/" "$docker_compose_file"
-    sed -i '' "s/- MYSQL_USER=[^ ]*/- MYSQL_USER=${DBUSER}/" "$docker_compose_file"
-    sed -i '' "s/- MYSQL_PASSWORD=[^ ]*/- MYSQL_PASSWORD=${DBPASSWORD}/" "$docker_compose_file"
-    sed -i '' "s/- MYSQL_DATABASE=[^ ]*/- MYSQL_DATABASE=${DBNAME}/" "$docker_compose_file"
-    sed -i '' "s/- MYSQL_ROOT_PASSWORD=[^ ]*/- MYSQL_ROOT_PASSWORD=${DBPASSWORD}/" "$docker_compose_file"
+    sed -i '' "s/-chain=[^ ]*/-chain=$BITCOIN_CHAIN/" "$docker_compose_file"
+    sed -i '' "s/- MYSQL_USER=[^ ]*/- MYSQL_USER=${STRATUM_DB_USER}/" "$docker_compose_file"
+    sed -i '' "s/- MYSQL_PASSWORD=[^ ]*/- MYSQL_PASSWORD=${STRATUM_DB_PASSWORD}/" "$docker_compose_file"
+    sed -i '' "s/- MYSQL_DATABASE=[^ ]*/- MYSQL_DATABASE=${STRATUM_DB_NAME}/" "$docker_compose_file"
+    sed -i '' "s/- MYSQL_ROOT_PASSWORD=[^ ]*/- MYSQL_ROOT_PASSWORD=${STRATUM_DB_PASSWORD}/" "$docker_compose_file"
 fi
 
 if [ ! -e "config/stratum.py" ]; then
@@ -26,15 +26,15 @@ if [ ! -e "config/stratum.py" ]; then
 else
     echo "Setup Stratum minning environment variables"
     stratum_config_file="config/stratum.py"
-    sed -i '' "s/DATABASE_DRIVER = .*/DATABASE_DRIVER = '$DB'/" "$stratum_config_file"
-    sed -i '' "s/DB_MYSQL_HOST = .*/DB_MYSQL_HOST = '$DBHOST'/" "$stratum_config_file"
-    sed -i '' "s/DB_MYSQL_DBNAME = .*/DB_MYSQL_DBNAME = '$DBNAME'/" "$stratum_config_file"
-    sed -i '' "s/DB_MYSQL_USER = .*/DB_MYSQL_USER = '$DBUSER'/" "$stratum_config_file"
-    sed -i '' "s/DB_MYSQL_PASS = .*/DB_MYSQL_PASS = '$DBPASSWORD'/" "$stratum_config_file"
-    sed -i '' "s/COINDAEMON_TRUSTED_HOST = .*/COINDAEMON_TRUSTED_HOST = '$RPCIP'/" "$stratum_config_file"
-    sed -i '' "s/COINDAEMON_TRUSTED_PORT = .*/COINDAEMON_TRUSTED_PORT = $RPCPORT/" "$stratum_config_file"
-    sed -i '' "s/COINDAEMON_TRUSTED_USER = .*/COINDAEMON_TRUSTED_USER = '$RPCUSER'/" "$stratum_config_file"
-    sed -i '' "s/COINDAEMON_TRUSTED_PASSWORD = .*/COINDAEMON_TRUSTED_PASSWORD = '$RPCPASSWORD'/" "$stratum_config_file"
+    sed -i '' "s/DATABASE_DRIVER = .*/DATABASE_DRIVER = '$STRATUM_DB'/" "$stratum_config_file"
+    sed -i '' "s/DB_MYSQL_HOST = .*/DB_MYSQL_HOST = '$STRATUM_DB_HOST'/" "$stratum_config_file"
+    sed -i '' "s/DB_MYSQL_DBNAME = .*/DB_MYSQL_DBNAME = '$STRATUM_DB_NAME'/" "$stratum_config_file"
+    sed -i '' "s/DB_MYSQL_USER = .*/DB_MYSQL_USER = '$STRATUM_DB_USER'/" "$stratum_config_file"
+    sed -i '' "s/DB_MYSQL_PASS = .*/DB_MYSQL_PASS = '$STRATUM_DB_PASSWORD'/" "$stratum_config_file"
+    sed -i '' "s/COINDAEMON_TRUSTED_HOST = .*/COINDAEMON_TRUSTED_HOST = '$BITCOIN_RPCIP'/" "$stratum_config_file"
+    sed -i '' "s/COINDAEMON_TRUSTED_PORT = .*/COINDAEMON_TRUSTED_PORT = $BITCOIN_RPCPORT/" "$stratum_config_file"
+    sed -i '' "s/COINDAEMON_TRUSTED_USER = .*/COINDAEMON_TRUSTED_USER = '$BITCOIN_RPCUSER'/" "$stratum_config_file"
+    sed -i '' "s/COINDAEMON_TRUSTED_PASSWORD = .*/COINDAEMON_TRUSTED_PASSWORD = '$BITCOIN_RPCPASSWORD'/" "$stratum_config_file"
 
 fi
 
@@ -48,11 +48,11 @@ if [ ! -e "bitcoin-node-manager/src/Config.php" ]; then
 
         bitcoin_node_manager_path="bitcoin-node-manager/src/Config.php"
 
-        sed -i '' "s/\(const RPC_IP = \).*/\1\"$RPCIP\";/" "$bitcoin_node_manager_path"
-        sed -i '' "s/\(const RPC_PORT = \).*/\1\"$RPCPORT\";/" "$bitcoin_node_manager_path"
-        sed -i '' "s/\(const RPC_USER = \).*/\1\"$RPCUSER\";/" "$bitcoin_node_manager_path"
-        sed -i '' "s/\(const RPC_PASSWORD = \).*/\1\"$RPCPASSWORD\";/" "$bitcoin_node_manager_path"
-        sed -i '' "s/\(const PASSWORD = \).*/\1\"$NODEMANAGERPASSWORD\";/" "$bitcoin_node_manager_path"
+        sed -i '' "s/\(const RPC_IP = \).*/\1\"$BITCOIN_RPCIP\";/" "$bitcoin_node_manager_path"
+        sed -i '' "s/\(const RPC_PORT = \).*/\1\"$BITCOIN_RPCPORT\";/" "$bitcoin_node_manager_path"
+        sed -i '' "s/\(const RPC_USER = \).*/\1\"$BITCOIN_RPCUSER\";/" "$bitcoin_node_manager_path"
+        sed -i '' "s/\(const RPC_PASSWORD = \).*/\1\"$BITCOIN_RPCPASSWORD\";/" "$bitcoin_node_manager_path"
+        sed -i '' "s/\(const PASSWORD = \).*/\1\"$BITCOIN_NODEMANAGER_PASSWORD\";/" "$bitcoin_node_manager_path"
     fi
     
 else
@@ -60,10 +60,10 @@ else
 
     bitcoin_node_manager_path="bitcoin-node-manager/src/Config.php"
 
-    sed -i '' "s/\(const RPC_IP = \).*/\1\"$RPCIP\";/" "$bitcoin_node_manager_path"
-    sed -i '' "s/\(const RPC_PORT = \).*/\1\"$RPCPORT\";/" "$bitcoin_node_manager_path"
-    sed -i '' "s/\(const RPC_USER = \).*/\1\"$RPCUSER\";/" "$bitcoin_node_manager_path"
-    sed -i '' "s/\(const RPC_PASSWORD = \).*/\1\"$RPCPASSWORD\";/" "$bitcoin_node_manager_path"
+    sed -i '' "s/\(const RPC_IP = \).*/\1\"$BITCOIN_RPCIP\";/" "$bitcoin_node_manager_path"
+    sed -i '' "s/\(const RPC_PORT = \).*/\1\"$BITCOIN_RPCPORT\";/" "$bitcoin_node_manager_path"
+    sed -i '' "s/\(const RPC_USER = \).*/\1\"$BITCOIN_RPCUSER\";/" "$bitcoin_node_manager_path"
+    sed -i '' "s/\(const RPC_PASSWORD = \).*/\1\"$BITCOIN_RPCPASSWORD\";/" "$bitcoin_node_manager_path"
 fi
 
 
@@ -75,9 +75,9 @@ else
 
     bfgminer_path="config/bfgminer.conf"
 
-    sed -i '' "s|http://[^:]*:[0-9]*|http://$RPCIP:$RPCPORT|" "$bfgminer_path"
-    sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$RPCUSER\"|" "$bfgminer_path"
-    sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$RPCPASSWORD\"|" "$bfgminer_path"
+    sed -i '' "s|http://[^:]*:[0-9]*|http://$BITCOIN_RPCIP:$BITCOIN_RPCPORT|" "$bfgminer_path"
+    sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$BITCOIN_RPCUSER\"|" "$bfgminer_path"
+    sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$BITCOIN_RPCPASSWORD\"|" "$bfgminer_path"
 
 fi
 
@@ -89,15 +89,14 @@ else
 
     bitcoin_path="config/bitcoin.conf"
 
-    sed -i '' "s/^rpcuser=.*/rpcuser=$RPCUSER/" "$bitcoin_path"
-    sed -i '' "s/^rpcpassword=.*/rpcpassword=$RPCPASSWORD/" "$bitcoin_path"
+    sed -i '' "s/^rpcuser=.*/rpcuser=$BITCOIN_RPCUSER/" "$bitcoin_path"
+    sed -i '' "s/^rpcpassword=.*/rpcpassword=$BITCOIN_RPCPASSWORD/" "$bitcoin_path"
 fi
 
 
 
 echo "Starting docker containers"
 
-docker-compose up bitcoind -d
 
 is_bitcoind_ready() {
     local container_name="bitcoind"
@@ -106,7 +105,7 @@ is_bitcoind_ready() {
         return 1
     fi
 
-    if docker exec bitcoind bash -c "bitcoin-cli -chain=${CHAIN} -rpcuser=${RPCUSER} -rpcpassword=${RPCPASSWORD} -rpcport=${RPCPORT} getblockchaininfo"  &>/dev/null; then
+    if docker exec bitcoind bash -c "bitcoin-cli -chain=${BITCOIN_CHAIN} -rpcuser=${BITCOIN_RPCUSER} -rpcpassword=${BITCOIN_RPCPASSWORD} -rpcport=${BITCOIN_RPCPORT} getblockchaininfo"  &>/dev/null; then
         return 0
     else
         return 1
@@ -120,85 +119,89 @@ is_stratumdb_ready() {
         return 1
     fi
 
-    if docker exec stratumdb bash -c "mysql -u${DBUSER} -p${DBPASSWORD} -h${DBHOST} -e 'show databases;'"  &>/dev/null; then
+    if docker exec stratumdb bash -c "mysql -u${STRATUM_DB_USER} -p${STRATUM_DB_PASSWORD} -h${STRATUM_DB_HOST} -e 'show databases;'"  &>/dev/null; then
         return 0
     else
         return 1
     fi
 }
 
-echo "Waiting for bitcoind to be ready..."
-until is_bitcoind_ready; do
-    echo "Waiting..."
-    sleep 5
-done
+if [ "$BITCOINCORE" == "true" ]; then
+    echo "Starting bitcoind server"
+    docker-compose up bitcoind -d
+    echo "Waiting for bitcoind to be ready..."
+    until is_bitcoind_ready; do
+        echo "Waiting..."
+        sleep 5
+    done
 
-echo "bitcoind is ready. Proceeding to the next task."
+    echo "bitcoind is ready. Proceeding to the next task."
 
+    docker exec bitcoind bash -c "bitcoin-cli -chain=${BITCOIN_CHAIN} -rpcuser=${BITCOIN_RPCUSER} -rpcpassword=${BITCOIN_RPCPASSWORD} -rpcport=${BITCOIN_RPCPORT} createwallet ${BITCOIN_WALLETNAME}"
+BITCOIN_WALLETADDRESS=$(docker exec bitcoind bash -c "bitcoin-cli -chain=${BITCOIN_CHAIN} -rpcuser=${BITCOIN_RPCUSER} -rpcpassword=${BITCOIN_RPCPASSWORD} -rpcport=${BITCOIN_RPCPORT} -rpcwallet=${BITCOIN_WALLETNAME} getnewaddress -addresstype legacy" 2>&1)
 
-docker exec bitcoind bash -c "bitcoin-cli -chain=${CHAIN} -rpcuser=${RPCUSER} -rpcpassword=${RPCPASSWORD} -rpcport=${RPCPORT} createwallet ${WALLETNAME}"
-WALLETADDRESS=$(docker exec bitcoind bash -c "bitcoin-cli -chain=${CHAIN} -rpcuser=${RPCUSER} -rpcpassword=${RPCPASSWORD} -rpcport=${RPCPORT} -rpcwallet=${WALLETNAME} getnewaddress -addresstype legacy" 2>&1)
-
-
-if [[ "$WALLETADDRESS" == *"Error"* ]]; then
-    echo "error: failed to get wallet address."
-    exit 1
-else
-
-    sed -i '' "s/\(WALLETNAME=\).*/\1$WALLETNAME/" ".env"
-    sed -i '' "s/\(WALLETADDRESS=\).*/\1$WALLETADDRESS/" ".env"
-
-    if [ ! -e "config/cgminer.conf" ]; then
-        echo "Please create config/cgminer.conf file"
+    if [[ "$BITCOIN_WALLETADDRESS" == *"Error"* ]]; then
+        echo "error: failed to get wallet address."
         exit 1
     else
-        echo "Setup CGMiner environment variables"
 
-        cgminer_path="config/cgminer.conf"
+        sed -i '' "s/\(BITCOIN_WALLETNAME=\).*/\1$BITCOIN_WALLETNAME/" ".env"
+        sed -i '' "s/\(BITCOIN_WALLETADDRESS=\).*/\1$BITCOIN_WALLETADDRESS/" ".env"
 
-        sed -i '' "s|http://[^:]*:[0-9]*|http://$RPCIP:$RPCPORT|" "$cgminer_path"
-        sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$RPCUSER\"|" "$cgminer_path"
-        sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$RPCPASSWORD\"|" "$cgminer_path"
-        sed -i '' "s|\"btc-address\": \"[^\"]*\"|\"btc-address\": \"$WALLETADDRESS\"|" "$cgminer_path"
+        if [ ! -e "config/cgminer.conf" ]; then
+            echo "Please create config/cgminer.conf file"
+            exit 1
+        else
+            echo "Setup CGMiner environment variables"
+
+            cgminer_path="config/cgminer.conf"
+
+            sed -i '' "s|http://[^:]*:[0-9]*|http://$BITCOIN_RPCIP:$BITCOIN_RPCPORT|" "$cgminer_path"
+            sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$BITCOIN_RPCUSER\"|" "$cgminer_path"
+            sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$BITCOIN_RPCPASSWORD\"|" "$cgminer_path"
+            sed -i '' "s|\"btc-address\": \"[^\"]*\"|\"btc-address\": \"$BITCOIN_WALLETADDRESS\"|" "$cgminer_path"
+        fi
+
+        if [ ! -e "docker-compose.yaml" ]; then
+            echo "Please create docker-compose.yaml file"
+            exit 1
+        else
+            echo "Setup Wallet address and chain"
+            docker_compose_file="docker-compose.yaml"
+            sed -i '' "s/--coinbase-addr=[^ ]*/--coinbase-addr=$BITCOIN_WALLETADDRESS/" "$docker_compose_file"
+            sed -i '' "s/--generate-to=[^ ]*/--generate-to=$BITCOIN_WALLETADDRESS/" "$docker_compose_file"
+            sed -i '' "s/-chain=[^ ]*/-chain=$BITCOIN_CHAIN/" "$docker_compose_file"
+        fi
+
+        if [ ! -e "config/cpuminer.conf" ]; then
+            echo "Please create config/cpuminer.conf file"
+            exit 1
+        else
+            echo "Setup CPUMiner environment variables"
+
+            cpuminer_path="config/cpuminer.conf"
+
+            sed -i '' "s|http://[^:]*:[0-9]*|http://$BITCOIN_RPCIP:$BITCOIN_RPCPORT|" "$cpuminer_path"
+            sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$BITCOIN_RPCUSER\"|" "$cpuminer_path"
+            sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$BITCOIN_RPCPASSWORD\"|" "$cpuminer_path"
+        fi
     fi
 
-    if [ ! -e "docker-compose.yaml" ]; then
-        echo "Please create docker-compose.yaml file"
-        exit 1
-    else
-        echo "Setup Wallet address and chain"
-        docker_compose_file="docker-compose.yaml"
-        sed -i '' "s/--coinbase-addr=[^ ]*/--coinbase-addr=$WALLETADDRESS/" "$docker_compose_file"
-        sed -i '' "s/--generate-to=[^ ]*/--generate-to=$WALLETADDRESS/" "$docker_compose_file"
-        sed -i '' "s/-chain=[^ ]*/-chain=$CHAIN/" "$docker_compose_file"
+    echo "Wallet address: ${BITCOIN_WALLETADDRESS}"
+    echo "Chain: ${BITCOIN_CHAIN}"
+    source .env
+
+    if [ "$BITCOIN_CHAIN" = "regtest" ]; then
+        docker exec bitcoind bash -c "bitcoin-cli -chain=${BITCOIN_CHAIN} -rpcuser=${BITCOIN_RPCUSER} -rpcpassword=${BITCOIN_RPCPASSWORD} -rpcport=${BITCOIN_RPCPORT} generatetoaddress 250 ${BITCOIN_WALLETADDRESS}"
+        echo "generating 250 blocks"
     fi
 
-    if [ ! -e "config/cpuminer.conf" ]; then
-        echo "Please create config/cpuminer.conf file"
-        exit 1
-    else
-        echo "Setup CPUMiner environment variables"
+    sleep 60s & 
+    pid=$!
+    wait $pid
 
-        cpuminer_path="config/cpuminer.conf"
-
-        sed -i '' "s|http://[^:]*:[0-9]*|http://$RPCIP:$RPCPORT|" "$cpuminer_path"
-        sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$RPCUSER\"|" "$cpuminer_path"
-        sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$RPCPASSWORD\"|" "$cpuminer_path"
-    fi
 fi
 
-echo "Wallet address: ${WALLETADDRESS}"
-echo "Chain: ${CHAIN}"
-source .env
-
-if [ "$CHAIN" = "regtest" ]; then
-    docker exec bitcoind bash -c "bitcoin-cli -chain=${CHAIN} -rpcuser=${RPCUSER} -rpcpassword=${RPCPASSWORD} -rpcport=${RPCPORT} generatetoaddress 250 ${WALLETADDRESS}"
-    echo "generating 250 blocks"
-fi
-
-sleep 60s & 
-pid=$!
-wait $pid
 
 if [ "$CPUMINER" = "true" ]; then
     echo "Starting cpuminer server"
@@ -220,11 +223,15 @@ if [ "$NODEMNG" = "true" ]; then
     docker-compose up bitcoin-node-manager -d
 fi
 
-docker-compose up stratumdb -d
-echo "Waiting for stratumdb to be ready..."
-until is_stratumdb_ready; do
-    echo "Waiting..."
-    sleep 5
-done
-docker-compose up stratum -d
+if [ "$STRATUM" = "true" ]; then
+    echo "Starting stratum server"
+    docker-compose up stratumdb -d
+    echo "Waiting for stratumdb to be ready..."
+    until is_stratumdb_ready; do
+        echo "Waiting..."
+        sleep 5
+    done
+    docker-compose up stratum -d
+fi
+
 docker-compose logs --follow
