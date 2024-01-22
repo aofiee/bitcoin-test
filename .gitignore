@@ -1,3 +1,4 @@
 bitcore-data/*
 db/
 litecoin-data/*
+.env
