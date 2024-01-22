@@ -96,9 +96,9 @@ DB_PGSQL_PASS = 'stratum'
 DB_PGSQL_SCHEMA = 'public'
 # MySQL
 DB_MYSQL_HOST = 'stratumdb'
-DB_MYSQL_DBNAME = 'stratum'
-DB_MYSQL_USER = 'stratum'
-DB_MYSQL_PASS = 'stratum'
+DB_MYSQL_DBNAME = 'stratum_db'
+DB_MYSQL_USER = 'stratum_user'
+DB_MYSQL_PASS = 'stratum_password'
 DB_MYSQL_PORT = 3306            # Default port for MySQL
 
 # ******************** Adv. DB Settings *********************

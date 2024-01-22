@@ -24,6 +24,10 @@ RUN gpg --keyserver pgp.mit.edu --recv-key FE3348877809386C || \
     cat SHA256SUMS.asc | grep  litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz | sha256sum --check --status && \
     tar -xzf litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz
 
+RUN mv litecoin-0.21.2.2 litecoin
+
 RUN rm -rf davidburkett38-key.pgp SHA256SUMS.asc litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz.asc
 
-EXPOSE 9332 9333 19332 19333
+EXPOSE 9332 9333 19332 19333 19443 19444
+
+ENTRYPOINT [ "/app/litecoin/bin/litecoind" ]

@@ -1,0 +1,26 @@
+version: "3.7"
+services:
+  litecoind:
+    build:
+      context: .
+      dockerfile: Dockerfile.litecoin
+    image: litecoin
+    ports:
+      - 9332:9332
+      - 9333:9333 
+      - 19332:19332 
+      - 19333:19333
+      - 19443:19443
+      - 19444:19444
+    volumes:
+      - ../../config/litecoin.conf:/data/litecoin.conf
+      - ../../litecoin-data:/home/litecoin
+    restart: always
+    command:
+      -chain=regtest
+      -printtoconsole
+      -dnsseed=0
+      -conf=/data/litecoin.conf
+      -datadir=/home/litecoin
+    networks:
+      - bitcoin

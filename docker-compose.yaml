@@ -2,25 +2,9 @@ version: "3.7"
 
 services:
   bitcoind:
-    image: cryptodockerhub/bitcoin-core:latest
-    container_name: bitcoind
-    restart: always
-    ports:
-      - 8332:8332
-      - 8333:8333
-      - 18332:18332
-      - 18333:18333
-      - 18443:18443
-      - 18444:18444
-    volumes:
-      - ./chain:/home/coinuser/.bitcoin
-      - ./config/bitcoin.conf:/data/config.conf
-    command: 
-      -chain=regtest
-      -printtoconsole
-      -dnsseed=0
-      -fixedseeds=0
-      -conf=/data/config.conf
+    extends:
+      file: dockerfile/bitcoind/docker-compose.yml
+      service: bitcoind
     networks:
       - bitcoin
   bitcoin-node-manager:
@@ -33,72 +17,39 @@ services:
     networks: 
       - bitcoin
   cpuminer:
-    container_name: cpuminer
-    restart: on-failure
-    build:
-      context: .
-      dockerfile: Dockerfile.cpuminer
-    image: cpuminer
-    volumes:
-      - ./config/cpuminer.conf:/app/cpuminer.conf
-    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=mhiP8XpZQKPotKRBLKhNrxdd7DRm7qJ3XR
+    extends:
+      file: dockerfile/cpuminer/docker-compose.yml
+      service: cpuminer
     networks:
       - bitcoin
   cgminer:
-    container_name: cgminer
-    restart: on-failure
-    build:
-      context: .
-      dockerfile: Dockerfile.cgminer
-    image: cgminer
-    volumes:
-      - ./config/cgminer.conf:/app/cgminer.conf
-    entrypoint: ./cgminer -c /app/cgminer.conf
-    ports:
-          - 4028:4028
+    extends:
+      file: dockerfile/cgminer/docker-compose.yml
+      service: cgminer
     networks:
       - bitcoin
   bfgminer:
-    container_name: bfgminer
-    build:
-      context: .
-      dockerfile: Dockerfile.bfgminer
-    image: bfgminer
-    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=mhiP8XpZQKPotKRBLKhNrxdd7DRm7qJ3XR
-    volumes:
-      - ./config/bfgminer.conf:/app/bfgminer.conf
+    extends:
+      file: dockerfile/bfgminer/docker-compose.yml
+      service: bfgminer
     networks:
       - bitcoin
   stratum:
-    container_name: stratum
-    build:
-      context: .
-      dockerfile: Dockerfile.stratum
-    image: stratum
-    ports:
-      - 8008:8000
-      - 3333:3333
-    working_dir: /app/stratum-mining
-    entrypoint: twistd -ny launcher.tac
-    # entrypoint: ./stratum-mining.py -o localhost:8332 -u n3uD1TSmc2HNs4bonnnBtURURLqqmcHnYd -p x
-    volumes:
-      - ./config/stratum.py:/app/stratum-mining/conf/config.py
+    extends:
+      file: dockerfile/stratum/docker-compose.yml
+      service: stratum
     networks:
       - bitcoin
   stratumdb:
-    image: mysql:latest
-    container_name: stratumdb
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=stratum
-      - MYSQL_DATABASE=stratum
-      - MYSQL_USER=stratum
-      - MYSQL_PASSWORD=stratum
-    ports:
-      - 3306:3306
-    volumes:
-      - ./db:/var/lib/mysql
-      - ./migration/stratum.sql:/docker-entrypoint-initdb.d/init-db.sql
+    extends:
+      file: dockerfile/stratumdb/docker-compose.yml
+      service: stratumdb
+    networks:
+      - bitcoin
+  litecoind:
+    extends:
+      file: dockerfile/litecoin/docker-compose.yml
+      service: litecoind
     networks:
       - bitcoin
 networks:

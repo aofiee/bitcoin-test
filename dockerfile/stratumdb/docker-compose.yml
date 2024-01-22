@@ -1,0 +1,18 @@
+version: "3.7"
+services:
+  stratumdb:
+    image: mysql:latest
+    container_name: stratumdb
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=stratum_password
+      - MYSQL_DATABASE=stratum_db
+      - MYSQL_USER=stratum_user
+      - MYSQL_PASSWORD=stratum_password
+    ports:
+      - 3306:3306
+    volumes:
+      - ../../db:/var/lib/mysql
+      - ../../migration/stratum.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - bitcoin

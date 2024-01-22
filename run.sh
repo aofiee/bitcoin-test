@@ -7,17 +7,27 @@ fi
 
 source .env
 
-if [ ! -e "docker-compose.yaml" ]; then
-    echo "Please create docker-compose.yaml file"
+# Setup bitcore chain
+if [ ! -e "dockerfile/bitcoind/docker-compose.yml" ]; then
+    echo "Please create dockerfile/bitcoind/docker-compose.yml file"
     exit 1
 else
-    echo "Setup Chain"
-    docker_compose_file="docker-compose.yaml"
+    echo "Setup bitcore chain environment variables"
+    docker_compose_file="dockerfile/bitcoind/docker-compose.yml"
     sed -i '' "s/-chain=[^ ]*/-chain=$BITCOIN_CHAIN/" "$docker_compose_file"
+fi
+
+# Setup stratumdb environment variables
+if [ ! -e "dockerfile/stratumdb/docker-compose.yml" ]; then
+    echo "Please create dockerfile/stratumdb/docker-compose.yml file"
+    exit 1
+else
+    echo "Setup stratumdb environment variables"
+    docker_compose_file="dockerfile/stratumdb/docker-compose.yml"
     sed -i '' "s/- MYSQL_USER=[^ ]*/- MYSQL_USER=${STRATUM_DB_USER}/" "$docker_compose_file"
     sed -i '' "s/- MYSQL_PASSWORD=[^ ]*/- MYSQL_PASSWORD=${STRATUM_DB_PASSWORD}/" "$docker_compose_file"
     sed -i '' "s/- MYSQL_DATABASE=[^ ]*/- MYSQL_DATABASE=${STRATUM_DB_NAME}/" "$docker_compose_file"
-    sed -i '' "s/- MYSQL_ROOT_PASSWORD=[^ ]*/- MYSQL_ROOT_PASSWORD=${STRATUM_DB_PASSWORD}/" "$docker_compose_file"
+    sed -i '' "s/- MYSQL_ROOT_PASSWORD=[^ ]*/- MYSQL_ROOT_PASSWORD=${STRATUM_DB_PASSWORD}/" "$docker_compose_file"    
 fi
 
 if [ ! -e "config/stratum.py" ]; then
@@ -162,22 +172,31 @@ BITCOIN_WALLETADDRESS=$(docker exec bitcoind bash -c "bitcoin-cli -chain=${BITCO
             sed -i '' "s|\"btc-address\": \"[^\"]*\"|\"btc-address\": \"$BITCOIN_WALLETADDRESS\"|" "$cgminer_path"
         fi
 
-        if [ ! -e "docker-compose.yaml" ]; then
-            echo "Please create docker-compose.yaml file"
+        # Setup bfgminer wallet address
+        if [ ! -e "dockerfile/bfgminer/docker-compose.yml" ]; then
+            echo "Please create dockerfile/bfgminer/docker-compose.yml file"
             exit 1
         else
-            echo "Setup Wallet address and chain"
-            docker_compose_file="docker-compose.yaml"
-            sed -i '' "s/--coinbase-addr=[^ ]*/--coinbase-addr=$BITCOIN_WALLETADDRESS/" "$docker_compose_file"
+            echo "Setup bfgminer wallet address"
+            docker_compose_file="dockerfile/bfgminer/docker-compose.yml"
             sed -i '' "s/--generate-to=[^ ]*/--generate-to=$BITCOIN_WALLETADDRESS/" "$docker_compose_file"
-            sed -i '' "s/-chain=[^ ]*/-chain=$BITCOIN_CHAIN/" "$docker_compose_file"
+        fi
+
+        # Setup cpuminer wallet address
+        if [ ! -e "dockerfile/cpuminer/docker-compose.yml" ]; then
+            echo "Please create dockerfile/cpuminer/docker-compose.yml file"
+            exit 1
+        else
+            echo "Setup cpuminer wallet address"
+            docker_compose_file="dockerfile/cpuminer/docker-compose.yml"
+            sed -i '' "s/--coinbase-addr=[^ ]*/--coinbase-addr=$BITCOIN_WALLETADDRESS/" "$docker_compose_file"
         fi
 
         if [ ! -e "config/cpuminer.conf" ]; then
             echo "Please create config/cpuminer.conf file"
             exit 1
         else
-            echo "Setup CPUMiner environment variables"
+            echo "Setup cpuminer environment variables"
 
             cpuminer_path="config/cpuminer.conf"
 

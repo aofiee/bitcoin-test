@@ -1,0 +1,17 @@
+version: "3.7"
+services:
+  stratum:
+    container_name: stratum
+    build:
+      context: .
+      dockerfile: Dockerfile.stratum
+    image: stratum
+    ports:
+      - 8008:8000
+      - 3333:3333
+    working_dir: /app/stratum-mining
+    entrypoint: twistd -ny launcher.tac
+    volumes:
+      - ../../config/stratum.py:/app/stratum-mining/conf/config.py
+    networks:
+      - bitcoin

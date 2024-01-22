@@ -1,2 +1,3 @@
-chain/*
+bitcore-data/*
 db/
+litecoin-data/*

@@ -1,0 +1,13 @@
+version: "3.7"
+services:
+  bfgminer:
+    container_name: bfgminer
+    build:
+      context: .
+      dockerfile: Dockerfile.bfgminer
+    image: bfgminer
+    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=mhHxYupjy6ATerg14rPdGJzDKVX49fWFBo
+    volumes:
+      - ../../config/bfgminer.conf:/app/bfgminer.conf
+    networks:
+      - bitcoin

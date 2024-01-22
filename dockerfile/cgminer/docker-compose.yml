@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  cgminer:
+    container_name: cgminer
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile.cgminer
+    image: cgminer
+    volumes:
+      - ../../config/cgminer.conf:/app/cgminer.conf
+    entrypoint: ./cgminer -c /app/cgminer.conf
+    ports:
+          - 4028:4028
+    networks:
+      - bitcoin

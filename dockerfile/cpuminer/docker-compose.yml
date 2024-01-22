@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+  cpuminer:
+    container_name: cpuminer
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile.cpuminer
+    image: cpuminer
+    volumes:
+      - ../../config/cpuminer.conf:/app/cpuminer.conf
+    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=mhHxYupjy6ATerg14rPdGJzDKVX49fWFBo
+    networks:
+      - bitcoin
