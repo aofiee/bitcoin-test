@@ -1,10 +1,10 @@
 version: "3.7"
 services:
   litecoind:
+    container_name: litecoind
     build:
       context: .
       dockerfile: Dockerfile.litecoin
-    image: litecoin
     ports:
       - 9332:9332
       - 9333:9333 

@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.bfgminer
     image: bfgminer
-    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=mhHxYupjy6ATerg14rPdGJzDKVX49fWFBo
+    entrypoint: ./bfgminer -S opencl:auto -S cpu:auto --generate-to=mm8Tkr7P3GdsSFP38qqEchQozUUK6TKwC1
     volumes:
       - ../../config/bfgminer.conf:/app/bfgminer.conf
     networks:

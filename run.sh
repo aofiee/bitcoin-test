@@ -91,6 +91,7 @@ else
 
 fi
 
+# bitcoin core environment variables
 if [ ! -e "config/bitcoin.conf" ]; then
     echo "Please create config/bitcoin.conf file"
     exit 1
@@ -103,11 +104,20 @@ else
     sed -i '' "s/^rpcpassword=.*/rpcpassword=$BITCOIN_RPCPASSWORD/" "$bitcoin_path"
 fi
 
+# litecoin core environment variables
+if [ ! -e "config/litecoin.conf" ]; then
+    echo "Please create config/litecoin.conf file"
+    exit 1
+else
+    echo "Setup Bitcoin environment"
 
+    bitcoin_path="config/litecoin.conf"
 
-echo "Starting docker containers"
+    sed -i '' "s/^rpcuser=.*/rpcuser=$BITCOIN_RPCUSER/" "$bitcoin_path"
+    sed -i '' "s/^rpcpassword=.*/rpcpassword=$BITCOIN_RPCPASSWORD/" "$bitcoin_path"
+fi
 
-
+# loop until bitcoind is ready
 is_bitcoind_ready() {
     local container_name="bitcoind"
     local running=$(docker inspect -f "{{.State.Running}}" $container_name 2>/dev/null)
@@ -122,6 +132,7 @@ is_bitcoind_ready() {
     fi
 }
 
+# loop until stratumdb is ready
 is_stratumdb_ready() {
     local container_name="stratumdb"
     local running=$(docker inspect -f "{{.State.Running}}" $container_name 2>/dev/null)
@@ -136,6 +147,22 @@ is_stratumdb_ready() {
     fi
 }
 
+# loop until litecoind is ready
+is_litecoind_ready() {
+    local container_name="litecoind"
+    local running=$(docker inspect -f "{{.State.Running}}" $container_name 2>/dev/null)
+    if [ "$running" != "true" ]; then
+        return 1
+    fi
+
+    if docker exec litecoind bash -c "./litecoin/bin/litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} getblockchaininfo"  &>/dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Start bitcoind server
 if [ "$BITCOINCORE" == "true" ]; then
     echo "Starting bitcoind server"
     docker-compose up bitcoind -d
@@ -212,6 +239,94 @@ BITCOIN_WALLETADDRESS=$(docker exec bitcoind bash -c "bitcoin-cli -chain=${BITCO
 
     if [ "$BITCOIN_CHAIN" = "regtest" ]; then
         docker exec bitcoind bash -c "bitcoin-cli -chain=${BITCOIN_CHAIN} -rpcuser=${BITCOIN_RPCUSER} -rpcpassword=${BITCOIN_RPCPASSWORD} -rpcport=${BITCOIN_RPCPORT} generatetoaddress 250 ${BITCOIN_WALLETADDRESS}"
+        echo "generating 250 blocks"
+    fi
+
+    sleep 60s & 
+    pid=$!
+    wait $pid
+
+fi
+
+# Start litecoind server
+if [ "$LITECOINCORE" = "true" ]; then
+    echo "Starting litecoind server"
+    docker-compose up litecoind -d
+    echo "Waiting for litecoind to be ready..."
+    until is_litecoind_ready; do
+        echo "Waiting..."
+        sleep 5
+    done
+
+    echo "litecoind is ready. Proceeding to the next task."
+
+    docker exec litecoind bash -c "./litecoin/bin/litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} createwallet ${LITECOIN_WALLETNAME}"
+
+
+    LITECOIN_WALLETADDRESS=$(docker exec litecoind bash -c "./litecoin/bin/litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} -rpcwallet=${LITECOIN_WALLETNAME} getnewaddress -addresstype legacy" 2>&1)
+
+if [[ "$LITECOIN_WALLETADDRESS" == *"Error"* ]]; then
+        echo "error: failed to get wallet address."
+        exit 1
+    else
+
+        sed -i '' "s/\(LITECOIN_WALLETNAME=\).*/\1$LITECOIN_WALLETNAME/" ".env"
+        sed -i '' "s/\(LITECOIN_WALLETADDRESS=\).*/\1$LITECOIN_WALLETADDRESS/" ".env"
+
+        if [ ! -e "config/cgminer.conf" ]; then
+            echo "Please create config/cgminer.conf file"
+            exit 1
+        else
+            echo "Setup CGMiner environment variables"
+
+            cgminer_path="config/cgminer.conf"
+
+            sed -i '' "s|http://[^:]*:[0-9]*|http://$LITECOIN_RPCIP:$LITECOIN_RPCPORT|" "$cgminer_path"
+            sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$LITECOIN_RPCUSER\"|" "$cgminer_path"
+            sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$LITECOIN_RPCPASSWORD\"|" "$cgminer_path"
+            sed -i '' "s|\"btc-address\": \"[^\"]*\"|\"btc-address\": \"$LITECOIN_WALLETADDRESS\"|" "$cgminer_path"
+        fi
+
+        # Setup bfgminer wallet address
+        if [ ! -e "dockerfile/bfgminer/docker-compose.yml" ]; then
+            echo "Please create dockerfile/bfgminer/docker-compose.yml file"
+            exit 1
+        else
+            echo "Setup bfgminer wallet address"
+            docker_compose_file="dockerfile/bfgminer/docker-compose.yml"
+            sed -i '' "s/--generate-to=[^ ]*/--generate-to=$LITECOIN_WALLETADDRESS/" "$docker_compose_file"
+        fi
+
+        # Setup cpuminer wallet address
+        if [ ! -e "dockerfile/cpuminer/docker-compose.yml" ]; then
+            echo "Please create dockerfile/cpuminer/docker-compose.yml file"
+            exit 1
+        else
+            echo "Setup cpuminer wallet address"
+            docker_compose_file="dockerfile/cpuminer/docker-compose.yml"
+            sed -i '' "s/--coinbase-addr=[^ ]*/--coinbase-addr=$LITECOIN_WALLETADDRESS/" "$docker_compose_file"
+        fi
+
+        if [ ! -e "config/cpuminer.conf" ]; then
+            echo "Please create config/cpuminer.conf file"
+            exit 1
+        else
+            echo "Setup cpuminer environment variables"
+
+            cpuminer_path="config/cpuminer.conf"
+
+            sed -i '' "s|http://[^:]*:[0-9]*|http://$LITECOIN_RPCIP:$LITECOIN_RPCPORT|" "$cpuminer_path"
+            sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$LITECOIN_RPCUSER\"|" "$cpuminer_path"
+            sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$LITECOIN_RPCPASSWORD\"|" "$cpuminer_path"
+        fi
+    fi
+
+    echo "Wallet address: ${LITECOIN_WALLETADDRESS}"
+    echo "Chain: ${LITECOIN_CHAIN}"
+    source .env
+
+    if [ "$LITECOIN_CHAIN" = "regtest" ]; then
+        docker exec litecoind bash -c "./litecoin/bin/litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} generatetoaddress 250 ${LITECOIN_WALLETADDRESS}"
         echo "generating 250 blocks"
     fi
 
