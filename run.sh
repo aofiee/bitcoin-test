@@ -155,7 +155,7 @@ is_litecoind_ready() {
         return 1
     fi
 
-    if docker exec litecoind bash -c "./litecoin/bin/litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} getblockchaininfo"  &>/dev/null; then
+    if docker exec litecoind bash -c "litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} getblockchaininfo"  &>/dev/null; then
         return 0
     else
         return 1
@@ -260,10 +260,10 @@ if [ "$LITECOINCORE" = "true" ]; then
 
     echo "litecoind is ready. Proceeding to the next task."
 
-    docker exec litecoind bash -c "./litecoin/bin/litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} createwallet ${LITECOIN_WALLETNAME}"
+    docker exec litecoind bash -c "litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} createwallet ${LITECOIN_WALLETNAME}"
 
 
-    LITECOIN_WALLETADDRESS=$(docker exec litecoind bash -c "./litecoin/bin/litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} -rpcwallet=${LITECOIN_WALLETNAME} getnewaddress -addresstype legacy" 2>&1)
+    LITECOIN_WALLETADDRESS=$(docker exec litecoind bash -c "litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} -rpcwallet=${LITECOIN_WALLETNAME} getnewaddress -addresstype legacy" 2>&1)
 
 if [[ "$LITECOIN_WALLETADDRESS" == *"Error"* ]]; then
         echo "error: failed to get wallet address."
@@ -326,7 +326,7 @@ if [[ "$LITECOIN_WALLETADDRESS" == *"Error"* ]]; then
     source .env
 
     if [ "$LITECOIN_CHAIN" = "regtest" ]; then
-        docker exec litecoind bash -c "./litecoin/bin/litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} generatetoaddress 250 ${LITECOIN_WALLETADDRESS}"
+        docker exec litecoind bash -c "litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} generatetoaddress 250 ${LITECOIN_WALLETADDRESS}"
         echo "generating 250 blocks"
     fi
 
