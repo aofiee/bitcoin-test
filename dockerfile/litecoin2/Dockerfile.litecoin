@@ -1,0 +1,35 @@
+FROM ubuntu:22.04
+
+WORKDIR /app
+
+RUN dpkg --add-architecture armhf
+RUN apt-get update && apt-get install -y \
+    gpg \
+    libc6:armhf \
+    wget \
+    curl \
+    iputils-ping \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN wget https://download.litecoin.org/litecoin-0.21.2.2/linux/litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz && \
+    wget https://download.litecoin.org/litecoin-0.21.2.2/linux/litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz.asc && \
+    wget https://download.litecoin.org/litecoin-0.21.2.2/davidburkett38-key.pgp && \
+    wget https://download.litecoin.org/litecoin-0.21.2.2/SHA256SUMS.asc && \
+    gpg --import davidburkett38-key.pgp
+
+
+RUN gpg --keyserver pgp.mit.edu --recv-key FE3348877809386C || \ 
+    gpg --keyserver keyserver.ubuntu.com --recv-key FE3348877809386C && \
+    gpg --verify SHA256SUMS.asc && \
+    cat SHA256SUMS.asc | grep  litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz | sha256sum --check --status && \
+    tar -xzf litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz
+
+RUN mv litecoin-0.21.2.2 litecoin
+
+RUN rm -rf davidburkett38-key.pgp SHA256SUMS.asc litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz litecoin-0.21.2.2-arm-linux-gnueabihf.tar.gz.asc
+
+EXPOSE 9332 9333 19332 19333 19443 19444
+
+ENV PATH="/app/litecoin/bin:${PATH}"
+
+ENTRYPOINT [ "/app/litecoin/bin/litecoind" ]
