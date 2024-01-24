@@ -9,6 +9,6 @@ services:
     image: cpuminer
     volumes:
       - ../../config/cpuminer.conf:/app/cpuminer.conf
-    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=n3kXKzaNUhWCsvKyKPJcJXHjcVW9J4wAuA
+    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=mnbVmBA94EEcjnM77ALLdse3vkmrULuwzT
     networks:
       - bitcoin

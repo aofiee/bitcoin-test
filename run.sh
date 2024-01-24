@@ -30,24 +30,6 @@ else
     sed -i '' "s/- MYSQL_ROOT_PASSWORD=[^ ]*/- MYSQL_ROOT_PASSWORD=${STRATUM_DB_PASSWORD}/" "$docker_compose_file"    
 fi
 
-if [ ! -e "config/stratum.py" ]; then
-    echo "Please create config/stratum.py file"
-    exit 1
-else
-    echo "Setup Stratum minning environment variables"
-    stratum_config_file="config/stratum.py"
-    sed -i '' "s/DATABASE_DRIVER = .*/DATABASE_DRIVER = '$STRATUM_DB'/" "$stratum_config_file"
-    sed -i '' "s/DB_MYSQL_HOST = .*/DB_MYSQL_HOST = '$STRATUM_DB_HOST'/" "$stratum_config_file"
-    sed -i '' "s/DB_MYSQL_DBNAME = .*/DB_MYSQL_DBNAME = '$STRATUM_DB_NAME'/" "$stratum_config_file"
-    sed -i '' "s/DB_MYSQL_USER = .*/DB_MYSQL_USER = '$STRATUM_DB_USER'/" "$stratum_config_file"
-    sed -i '' "s/DB_MYSQL_PASS = .*/DB_MYSQL_PASS = '$STRATUM_DB_PASSWORD'/" "$stratum_config_file"
-    sed -i '' "s/COINDAEMON_TRUSTED_HOST = .*/COINDAEMON_TRUSTED_HOST = '$BITCOIN_RPCIP'/" "$stratum_config_file"
-    sed -i '' "s/COINDAEMON_TRUSTED_PORT = .*/COINDAEMON_TRUSTED_PORT = $BITCOIN_RPCPORT/" "$stratum_config_file"
-    sed -i '' "s/COINDAEMON_TRUSTED_USER = .*/COINDAEMON_TRUSTED_USER = '$BITCOIN_RPCUSER'/" "$stratum_config_file"
-    sed -i '' "s/COINDAEMON_TRUSTED_PASSWORD = .*/COINDAEMON_TRUSTED_PASSWORD = '$BITCOIN_RPCPASSWORD'/" "$stratum_config_file"
-
-fi
-
 if [ ! -e "bitcoin-node-manager/src/Config.php" ]; then
     if [ ! -e "bitcoin-node-manager/src/Config.sample.php" ]; then
         echo "Please create bitcoin-node-manager/src/Config.php file"
@@ -324,6 +306,27 @@ if [[ "$LITECOIN_WALLETADDRESS" == *"Error"* ]]; then
     echo "Wallet address: ${LITECOIN_WALLETADDRESS}"
     echo "Chain: ${LITECOIN_CHAIN}"
     source .env
+    
+    # setup litecoin wallet address
+    if [ ! -e "config/stratum.py" ]; then
+        echo "Please create config/stratum.py file"
+        exit 1
+    else
+        echo "Setup Stratum minning environment variables"
+        stratum_config_file="config/stratum.py"
+        sed -i '' "s/DATABASE_DRIVER = .*/DATABASE_DRIVER = '$STRATUM_DB'/" "$stratum_config_file"
+        sed -i '' "s/DB_MYSQL_HOST = .*/DB_MYSQL_HOST = '$STRATUM_DB_HOST'/" "$stratum_config_file"
+        sed -i '' "s/DB_MYSQL_DBNAME = .*/DB_MYSQL_DBNAME = '$STRATUM_DB_NAME'/" "$stratum_config_file"
+        sed -i '' "s/DB_MYSQL_USER = .*/DB_MYSQL_USER = '$STRATUM_DB_USER'/" "$stratum_config_file"
+        sed -i '' "s/DB_MYSQL_PASS = .*/DB_MYSQL_PASS = '$STRATUM_DB_PASSWORD'/" "$stratum_config_file"
+        sed -i '' "s/COINDAEMON_TRUSTED_HOST = .*/COINDAEMON_TRUSTED_HOST = '$LITECOIN_RPCIP'/" "$stratum_config_file"
+        sed -i '' "s/COINDAEMON_TRUSTED_PORT = .*/COINDAEMON_TRUSTED_PORT = $LITECOIN_RPCPORT/" "$stratum_config_file"
+        sed -i '' "s/COINDAEMON_TRUSTED_USER = .*/COINDAEMON_TRUSTED_USER = '$LITECOIN_RPCUSER'/" "$stratum_config_file"
+        sed -i '' "s/COINDAEMON_TRUSTED_PASSWORD = .*/COINDAEMON_TRUSTED_PASSWORD = '$LITECOIN_RPCPASSWORD'/" "$stratum_config_file"
+        sed -i '' "s/COINDAEMON_ALGO = .*/COINDAEMON_ALGO = '$LITECOIN_MINER_ALGO'/" "$stratum_config_file"
+        sed -i '' "s/HOSTNAME = .*/HOSTNAME = '$STRATUM_TRANSPORTS_HOST_NAME'/" "$stratum_config_file"
+        sed -i '' "s/CENTRAL_WALLET = .*/CENTRAL_WALLET = '$LITECOIN_WALLETADDRESS'/" "$stratum_config_file"
+    fi
 
     if [ "$LITECOIN_CHAIN" = "regtest" ]; then
         docker exec litecoind bash -c "litecoin-cli -chain=${LITECOIN_CHAIN} -rpcuser=${LITECOIN_RPCUSER} -rpcpassword=${LITECOIN_RPCPASSWORD} -rpcport=${LITECOIN_RPCPORT} generatetoaddress 250 ${LITECOIN_WALLETADDRESS}"
