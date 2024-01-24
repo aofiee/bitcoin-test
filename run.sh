@@ -371,4 +371,9 @@ if [ "$STRATUM" = "true" ]; then
     docker-compose up stratum -d
 fi
 
+if [ "$LITECOINCORE_NODE2" = "true" ]; then
+    echo "Starting litecoind2 server"
+    docker-compose up litecoind2 -d
+fi
+
 docker-compose logs --follow

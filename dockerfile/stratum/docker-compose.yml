@@ -15,5 +15,6 @@ services:
       - ../../config/stratum.py:/app/stratum-mining/conf/config.py
       - ../../config/server.py:/app/stratum-mining/externals/stratum/stratum/server.py
       - ../../config/bitcoin_rpc.py:/app/stratum-mining/lib/bitcoin_rpc.py
+      - ../../config/coinbaser.py:/app/stratum-mining/lib/coinbaser.py
     networks:
       - bitcoin

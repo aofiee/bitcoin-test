@@ -35,7 +35,7 @@ RUN cd stratum-mining \
     && git pr 8
 
 RUN cp stratum-mining/conf/config_sample.py stratum-mining/conf/config.py
-RUN python stratum/stratum/signature.py > stratum/stratum/signing_key.pem
+RUN python /app/stratum-mining/externals/stratum/stratum/signature.py > /app/stratum-mining/externals/stratum/stratum/signing_key.pem
 
 RUN cd /app/stratum-mining/externals/stratum \
     && python setup.py install

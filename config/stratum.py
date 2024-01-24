@@ -9,7 +9,7 @@ You NEED to set the parameters in BASIC SETTINGS
 # ******************** BASIC SETTINGS ***************
 # These are the MUST BE SET parameters!
 
-CENTRAL_WALLET = 'mnbVmBA94EEcjnM77ALLdse3vkmrULuwzT'                # Local coin address where money goes
+CENTRAL_WALLET = 'mjGvt4v62MAtG7t3NwYwGKcxkNeqeBbCED'
 
 COINDAEMON_TRUSTED_HOST = 'litecoind'
 COINDAEMON_TRUSTED_PORT = 19444
@@ -87,7 +87,7 @@ LISTEN_WSS_TRANSPORT = None
 PASSWORD_SALT = 'some_crazy_string'
 
 # ******************** Database  *********************
-DATABASE_DRIVER = 'mysql'       # Options: none, sqlite, postgresql or mysql
+DATABASE_DRIVER = 'mysql'
 DATABASE_EXTEND = False         # SQLite and PGSQL Only!
 
 # SQLite
