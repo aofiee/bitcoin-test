@@ -9,7 +9,7 @@ You NEED to set the parameters in BASIC SETTINGS
 # ******************** BASIC SETTINGS ***************
 # These are the MUST BE SET parameters!
 
-CENTRAL_WALLET = 'mv6z7B6BMSEHYnMKNBrSNcja7d1Ri3svvi'
+CENTRAL_WALLET = 'mqAcTT9wudFZ3nNkE1KifvZE7JPjNuHRNX'
 
 COINDAEMON_TRUSTED_HOST = 'litecoind'
 COINDAEMON_TRUSTED_PORT = 19444
@@ -125,7 +125,7 @@ USERS_CHECK_PASSWORD = False    # Check the workers password? (Many pools don't)
 
 # Transaction Settings
 COINBASE_EXTRAS = '/stratumPool/'           # Extra Descriptive String to incorporate in solved blocks
-ALLOW_NONLOCAL_WALLET = False               # Allow valid, but NON-Local wallet's
+ALLOW_NONLOCAL_WALLET = True               # Allow valid, but NON-Local wallet's
 
 # Coin Daemon communication polling settings (In Seconds)
 PREVHASH_REFRESH_INTERVAL = 5   # How often to check for new Blocks
@@ -190,7 +190,7 @@ NOTIFY_EMAIL_USETLS = True
 
 # ******************** Memcache Settings *********************
 # Memcahce is a requirement. Enter the settings below
-MEMCACHE_HOST = "localhost"     # Hostname or IP that runs memcached
+MEMCACHE_HOST = "memcached"     # Hostname or IP that runs memcached
 MEMCACHE_PORT = 11211           # Port
 MEMCACHE_TIMEOUT = 900          # Key timeout
 MEMCACHE_PREFIX = "stratum_"    # Prefix for keys

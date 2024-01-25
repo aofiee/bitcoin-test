@@ -37,9 +37,10 @@ RUN cd stratum-mining \
 RUN cp stratum-mining/conf/config_sample.py stratum-mining/conf/config.py
 RUN python /app/stratum-mining/externals/stratum/stratum/signature.py > /app/stratum-mining/externals/stratum/stratum/signing_key.pem
 
-COPY  server.py /app/stratum-mining/externals/stratum/stratum/server.py
 COPY  bitcoin_rpc.py /app/stratum-mining/lib/bitcoin_rpc.py
-COPY  coinbaser.py /app/stratum-mining/lib/coinbaser.py
+COPY  bitcoin_rpc_manager.py /app/stratum-mining/lib/bitcoin_rpc_manager.py
+COPY  block_template.py /app/stratum-mining/lib/block_template.py
+COPY  DB_Mysql.py /app/stratum-mining/mining/DB_Mysql.py
 
 RUN cd /app/stratum-mining/externals/stratum \
     && python setup.py install

@@ -9,6 +9,7 @@ services:
       - MYSQL_DATABASE=stratum_db
       - MYSQL_USER=stratum_user
       - MYSQL_PASSWORD=stratum_password
+    command: mysqld --default-authentication-plugin=mysql_native_password
     ports:
       - 3306:3306
     volumes:

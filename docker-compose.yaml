@@ -11,7 +11,7 @@ services:
     image: php:8.2-apache
     container_name: bitcoin-node-manager
     ports:
-      - 8000:80
+      - 8001:80
     volumes:
       - ./bitcoin-node-manager:/var/www/html
     networks: 
@@ -56,6 +56,23 @@ services:
     extends:
       file: dockerfile/litecoin2/docker-compose.yml
       service: litecoind2
+    networks:
+      - bitcoin
+  memcached:
+      container_name: memcached
+      image: memcached:latest
+      ports:
+        - 11211:11211
+      volumes:
+        - ./memcached:/var/lib
+      healthcheck:
+        test: ''
+      networks:
+        - bitcoin
+  mpos:
+    extends:
+      file: dockerfile/mpos/docker-compose.yml
+      service: mpos
     networks:
       - bitcoin
 networks:

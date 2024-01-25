@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+  mpos:
+    container_name: mpos
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: tail -f /dev/null
+    # command: tail -f /var/log/apache2/mpos_access.log /var/log/apache2/mpos_error.log
+    environment:
+      - MYSQL_DATABASE=stratum_db
+      - MYSQL_USER=stratum_user
+      - MYSQL_PASSWORD=stratum_password
+    ports:
+      - 8000:80
+    volumes:
+      - ./global.inc.php:/var/www/mpos/include/config/global.inc.php

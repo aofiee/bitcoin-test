@@ -9,7 +9,7 @@ services:
     image: cpuminer
     volumes:
       - ../../config/cpuminer.conf:/app/cpuminer.conf
-    entrypoint: ./minerd --algo=scrypt --url=stratum+tcp://stratum:3333
-    # entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=mv6z7B6BMSEHYnMKNBrSNcja7d1Ri3svvi
+    # entrypoint: ./minerd --algo=scrypt --url=stratum+tcp://stratum:3333
+    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=mqAcTT9wudFZ3nNkE1KifvZE7JPjNuHRNX
     networks:
       - bitcoin

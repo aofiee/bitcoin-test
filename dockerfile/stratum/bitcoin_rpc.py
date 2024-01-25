@@ -125,7 +125,9 @@ class BitcoinRPC(object):
 
     @defer.inlineCallbacks
     def getinfo(self):
-         resp = (yield self._call('getinfo', []))
+         # getinfo was removed in v0.16.0 https://bitcoincore.org/en/releases/0.16.0/
+         #  resp = (yield self._call('getinfo', []))
+         resp = (yield self._call('getblockchaininfo', []))
          defer.returnValue(json.loads(resp)['result'])
     
     @defer.inlineCallbacks
@@ -157,8 +159,16 @@ class BitcoinRPC(object):
         
     @defer.inlineCallbacks
     def validateaddress(self, address):
-        resp = (yield self._call('validateaddress', [address,]))
-        defer.returnValue(json.loads(resp)['result'])
+        # clients must transition to using getaddressinfo to access this information before upgrading to v0.18
+        resp = (yield self._call('getaddressinfo', [address]))
+        validate_resp = (yield self._call('validateaddress', [address]))
+
+        is_valid = json.loads(validate_resp)['result']['isvalid']
+        result = json.loads(resp)['result']
+
+        result['isvalid'] = is_valid
+
+        defer.returnValue(result)
 
     @defer.inlineCallbacks
     def getdifficulty(self):
