@@ -209,9 +209,10 @@ BITCOIN_WALLETADDRESS=$(docker exec bitcoind bash -c "bitcoin-cli -chain=${BITCO
 
             cpuminer_path="config/cpuminer.conf"
 
-            sed -i '' "s|http://[^:]*:[0-9]*|http://$BITCOIN_RPCIP:$BITCOIN_RPCPORT|" "$cpuminer_path"
-            sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$BITCOIN_RPCUSER\"|" "$cpuminer_path"
+            sed -i '' "s|http://[^:]*:[0-9]*|stratum+tcp://$STRATUM_HOST_NAME:$STRATUM_HOST_PORT#notls|" "$cpuminer_path"
+            sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$BITCOIN_RPCUSER.worker\"|" "$cpuminer_path"
             sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$BITCOIN_RPCPASSWORD\"|" "$cpuminer_path"
+            sed -i '' "s|\"algo\": \"[^\"]*\"|\"algo\": \"$STRATUM_COINDAEMON_ALGO\"|" "$cpuminer_path"
         fi
     fi
 
@@ -326,6 +327,12 @@ if [[ "$LITECOIN_WALLETADDRESS" == *"Error"* ]]; then
         sed -i '' "s/COINDAEMON_ALGO = .*/COINDAEMON_ALGO = '$LITECOIN_MINER_ALGO'/" "$stratum_config_file"
         sed -i '' "s/HOSTNAME = .*/HOSTNAME = '$STRATUM_TRANSPORTS_HOST_NAME'/" "$stratum_config_file"
         sed -i '' "s/CENTRAL_WALLET = .*/CENTRAL_WALLET = '$LITECOIN_WALLETADDRESS'/" "$stratum_config_file"
+
+        sed -i '' "s/MEMCACHE_HOST = .*/MEMCACHE_HOST = '$MEMCACHE_HOST'/" "$stratum_config_file"
+        sed -i '' "s/MEMCACHE_PORT = .*/MEMCACHE_PORT = $MEMCACHE_PORT/" "$stratum_config_file"
+        sed -i '' "s/MEMCACHE_TIMEOUT = .*/MEMCACHE_TIMEOUT = $MEMCACHE_TIMEOUT/" "$stratum_config_file"
+        sed -i '' "s/MEMCACHE_PREFIX = .*/MEMCACHE_PREFIX = '$MEMCACHE_PREFIX'/" "$stratum_config_file"
+        sed -i '' "s/COINDAEMON_ALGO = .*/COINDAEMON_ALGO = '$STRATUM_COINDAEMON_ALGO'/" "$stratum_config_file"
     fi
 
     if [ "$LITECOIN_CHAIN" = "regtest" ]; then
@@ -368,7 +375,38 @@ if [ "$STRATUM" = "true" ]; then
         echo "Waiting..."
         sleep 5
     done
+    
+    if [ ! -e "dockerfile/mpos/global.inc.php" ]; then
+        if [ ! -e "dockerfile/mpos/global.inc.example.php" ]; then
+            echo "Please create dockerfile/mpos/global.inc.example.php file"
+            exit 1
+        else
+            cp dockerfile/mpos/global.inc.php.example dockerfile/mpos/global.inc.php
+        fi
+    else
+            mpos_config_file="dockerfile/mpos/global.inc.php"
+            sed -i '' "s/\(config['db']['host'] = \).*/\1\"$STRATUM_DB_HOST\";/" "$mpos_config_file"
+            sed -i '' "s/\(config['db']['user'] = \).*/\1\"$STRATUM_DB_USER\";/" "$mpos_config_file"
+            sed -i '' "s/\(config['db']['pass'] = \).*/\1\"$STRATUM_DB_PASSWORD\";/" "$mpos_config_file"
+            sed -i '' "s/\(config['db']['name'] = \).*/\1\"$STRATUM_DB_NAME\";/" "$mpos_config_file"
+
+            sed -i '' "s/\(config['wallet']['host'] = \).*/\1\"$LITECOIN_RPCIP:$LITECOIN_RPCPORT\";/" "$mpos_config_file"
+            sed -i '' "s/\(config['wallet']['username'] = \).*/\1\"$LITECOIN_RPCUSER\";/" "$mpos_config_file"
+            sed -i '' "s/\(config['wallet']['password'] = \).*/\1\"$LITECOIN_RPCPASSWORD\";/" "$mpos_config_file"
+
+            sed -i '' "s/\(config['memcache']['host'] = \).*/\1\"$MEMCACHE_HOST\";/" "$mpos_config_file"
+            sed -i '' "s/\(config['memcache']['port'] = \).*/\1\"$MEMCACHE_PORT\";/" "$bitcoin_node_manager_path"
+    fi
+
+    
+    echo "Starting memcached server"
+    docker-compose up memcached -d
+
+    echo "Starting stratum server"
     docker-compose up stratum -d
+
+    echo "Starting mpos server"
+    docker-compose up mpos -d
 fi
 
 if [ "$LITECOINCORE_NODE2" = "true" ]; then
