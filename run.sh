@@ -114,6 +114,21 @@ is_bitcoind_ready() {
     fi
 }
 
+# loop until mpos is ready
+is_mpos_ready() {
+    local container_name="mpos"
+    local running=$(docker inspect -f "{{.State.Running}}" $container_name 2>/dev/null)
+    if [ "$running" != "true" ]; then
+        return 1
+    fi
+
+    if docker exec mpos bash -c "apache2ctl restart"  &>/dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # loop until stratumdb is ready
 is_stratumdb_ready() {
     local container_name="stratumdb"
@@ -298,9 +313,10 @@ if [[ "$LITECOIN_WALLETADDRESS" == *"Error"* ]]; then
 
             cpuminer_path="config/cpuminer.conf"
 
-            sed -i '' "s|http://[^:]*:[0-9]*|http://$LITECOIN_RPCIP:$LITECOIN_RPCPORT|" "$cpuminer_path"
-            sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$LITECOIN_RPCUSER\"|" "$cpuminer_path"
+            sed -i '' "s|http://[^:]*:[0-9]*|stratum+tcp://$STRATUM_HOST_NAME:$STRATUM_HOST_PORT#notls|" "$cpuminer_path"
+            sed -i '' "s|\"user\": \"[^\"]*\"|\"user\": \"$LITECOIN_RPCUSER.worker\"|" "$cpuminer_path"
             sed -i '' "s|\"pass\": \"[^\"]*\"|\"pass\": \"$LITECOIN_RPCPASSWORD\"|" "$cpuminer_path"
+            sed -i '' "s|\"algo\": \"[^\"]*\"|\"algo\": \"$STRATUM_COINDAEMON_ALGO\"|" "$cpuminer_path"
         fi
     fi
 
@@ -376,7 +392,7 @@ if [ "$STRATUM" = "true" ]; then
         sleep 5
     done
     
-    if [ ! -e "dockerfile/mpos/global.inc.php" ]; then
+     if [ ! -e "dockerfile/mpos/global.inc.php" ]; then
         if [ ! -e "dockerfile/mpos/global.inc.example.php" ]; then
             echo "Please create dockerfile/mpos/global.inc.example.php file"
             exit 1
@@ -385,17 +401,20 @@ if [ "$STRATUM" = "true" ]; then
         fi
     else
             mpos_config_file="dockerfile/mpos/global.inc.php"
-            sed -i '' "s/\(config['db']['host'] = \).*/\1\"$STRATUM_DB_HOST\";/" "$mpos_config_file"
-            sed -i '' "s/\(config['db']['user'] = \).*/\1\"$STRATUM_DB_USER\";/" "$mpos_config_file"
-            sed -i '' "s/\(config['db']['pass'] = \).*/\1\"$STRATUM_DB_PASSWORD\";/" "$mpos_config_file"
-            sed -i '' "s/\(config['db']['name'] = \).*/\1\"$STRATUM_DB_NAME\";/" "$mpos_config_file"
+            backup_ext=".bak"
+            sed -i"$backup_ext" "s/\(\$config\['db'\]\['host'\] = \).*\(;\)/\1'$STRATUM_DB_HOST'\2/" "$mpos_config_file"
+            sed -i"$backup_ext" "s/\(\$config\['db'\]\['user'\] = \).*\(;\)/\1'$STRATUM_DB_USER'\2/" "$mpos_config_file"
+            sed -i"$backup_ext" "s/\(\$config\['db'\]\['pass'\] = \).*\(;\)/\1'$STRATUM_DB_PASSWORD'\2/" "$mpos_config_file"
+            sed -i"$backup_ext" "s/\(\$config\['db'\]\['name'\] = \).*\(;\)/\1'$STRATUM_DB_NAME'\2/" "$mpos_config_file"
 
-            sed -i '' "s/\(config['wallet']['host'] = \).*/\1\"$LITECOIN_RPCIP:$LITECOIN_RPCPORT\";/" "$mpos_config_file"
-            sed -i '' "s/\(config['wallet']['username'] = \).*/\1\"$LITECOIN_RPCUSER\";/" "$mpos_config_file"
-            sed -i '' "s/\(config['wallet']['password'] = \).*/\1\"$LITECOIN_RPCPASSWORD\";/" "$mpos_config_file"
+            sed -i"$backup_ext" "s/\(\$config\['wallet'\]\['host'\] = \).*\(;\)/\1'$LITECOIN_RPCIP:$LITECOIN_RPCPORT'\2/" "$mpos_config_file"
+            sed -i"$backup_ext" "s/\(\$config\['wallet'\]\['username'\] = \).*\(;\)/\1'$LITECOIN_RPCUSER'\2/" "$mpos_config_file"
+            sed -i"$backup_ext" "s/\(\$config\['wallet'\]\['password'\] = \).*\(;\)/\1'$LITECOIN_RPCPASSWORD'\2/" "$mpos_config_file"
 
-            sed -i '' "s/\(config['memcache']['host'] = \).*/\1\"$MEMCACHE_HOST\";/" "$mpos_config_file"
-            sed -i '' "s/\(config['memcache']['port'] = \).*/\1\"$MEMCACHE_PORT\";/" "$bitcoin_node_manager_path"
+            sed -i"$backup_ext" "s/\(\$config\['memcache'\]\['host'\] = \).*\(;\)/\1'$MEMCACHE_HOST'\2/" "$mpos_config_file"
+            sed -i"$backup_ext" "s/\(\$config\['memcache'\]\['port'\] = \).*\(;.*\)/\1$MEMCACHE_PORT\2/" "$mpos_config_file"
+
+            rm "${mpos_config_file}${backup_ext}"
     fi
 
     
@@ -407,6 +426,11 @@ if [ "$STRATUM" = "true" ]; then
 
     echo "Starting mpos server"
     docker-compose up mpos -d
+    echo "Waiting for mpos to be ready..."
+    until is_mpos_ready; do
+        echo "Waiting..."
+        sleep 5
+    done
 fi
 
 if [ "$LITECOINCORE_NODE2" = "true" ]; then
