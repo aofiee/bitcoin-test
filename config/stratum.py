@@ -9,7 +9,7 @@ You NEED to set the parameters in BASIC SETTINGS
 # ******************** BASIC SETTINGS ***************
 # These are the MUST BE SET parameters!
 
-CENTRAL_WALLET = 'mqAcTT9wudFZ3nNkE1KifvZE7JPjNuHRNX'
+CENTRAL_WALLET = 'mwfLmLe1wqTbNaQdPcVWnNw38CEnnDBjNE'
 
 COINDAEMON_TRUSTED_HOST = 'litecoind'
 COINDAEMON_TRUSTED_PORT = 19444
@@ -190,7 +190,7 @@ NOTIFY_EMAIL_USETLS = True
 
 # ******************** Memcache Settings *********************
 # Memcahce is a requirement. Enter the settings below
-MEMCACHE_HOST = "memcached"     # Hostname or IP that runs memcached
-MEMCACHE_PORT = 11211           # Port
-MEMCACHE_TIMEOUT = 900          # Key timeout
-MEMCACHE_PREFIX = "stratum_"    # Prefix for keys
+MEMCACHE_HOST = 'memcached'
+MEMCACHE_PORT = 11211
+MEMCACHE_TIMEOUT = 900
+MEMCACHE_PREFIX = 'stratum_'
