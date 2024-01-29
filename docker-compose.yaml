@@ -16,6 +16,15 @@ services:
       - ./bitcoin-node-manager:/var/www/html
     networks: 
       - bitcoin
+  bitcoin-node-manager2:
+    image: php:8.2-apache
+    container_name: bitcoin-node-manager2
+    ports:
+      - 8002:80
+    volumes:
+      - ./bitcoin-node-manager2:/var/www/html
+    networks: 
+      - bitcoin
   cpuminer:
     extends:
       file: dockerfile/cpuminer/docker-compose.yml
