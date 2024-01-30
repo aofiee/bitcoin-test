@@ -10,6 +10,6 @@ services:
     volumes:
       - ../../config/cpuminer.conf:/app/cpuminer.conf
     # entrypoint: ./minerd --algo=scrypt --url=stratum+tcp://stratum:3333
-    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=n44dzdqdqcihkVRAW5BRRXFAFqRwjJYqBv
+    entrypoint: ./minerd -c /app/cpuminer.conf --coinbase-addr=mjgwW3akmHZjNefa344cHHFvnUjWaQ9cmi
     networks:
       - bitcoin

@@ -1,0 +1,5 @@
+FROM ubuntu:22.04
+
+# docker run --network=bitcoin -it ubuntu:20.04
+
+RUN apt-get update
