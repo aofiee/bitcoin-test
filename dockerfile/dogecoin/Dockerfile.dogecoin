@@ -1,0 +1,6 @@
+FROM ubuntu:22.04
+
+WORKDIR /app
+
+RUN dpkg --add-architecture armhf
+RUN git clone https://github.com/dogecoin/dogecoin.git

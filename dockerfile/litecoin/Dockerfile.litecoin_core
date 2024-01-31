@@ -3,10 +3,10 @@ FROM ubuntu:22.04
 EXPOSE 9332 9333 19332 19333 19443 19444
 # docker run --network=bitcoin -it ubuntu:20.04
 WORKDIR /app
-ENV LITECOIN_DATA=/data
+ENV LITECOIN_DATA=/home/litecoin/.litecoin
 
 RUN dpkg --add-architecture armhf
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     git \
     autoconf \
     automake \
@@ -22,11 +22,20 @@ RUN apt-get update && apt-get install -y \
     libdb++-dev \
     libssl-dev \
     libevent-dev \
-    libfmt \
+    libfmt-dev \
     libboost-all-dev \
-    curl
+    curl \
+    iputils-ping \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --branch v0.21.2.2 --single-branch https://github.com/litecoin-project/litecoin.git .
+RUN git clone https://github.com/litecoin-project/litecoin.git .
+RUN ./contrib/install_db4.sh `pwd`
+RUN export BDB_PREFIX='/app/db4'
 
 RUN ./autogen.sh && \
-    ./configure CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --prefix=${LITECOIN_DATA} --disable-wallet
+    ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" --prefix=${LITECOIN_DATA} && \
+    make -j "$(($(nproc)+1))" NO_QT=1 NO_QR=1 NO_ZMQ=1 NO_SQLITE=1 NO_UPNP=1
+
+VOLUME ["/home/litecoin/.litecoin"]
+
+CMD ["litecoind"]
