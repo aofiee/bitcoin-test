@@ -9,7 +9,7 @@ You NEED to set the parameters in BASIC SETTINGS
 # ******************** BASIC SETTINGS ***************
 # These are the MUST BE SET parameters!
 
-CENTRAL_WALLET = 'mjgwW3akmHZjNefa344cHHFvnUjWaQ9cmi'
+CENTRAL_WALLET = 'n2p4W8Mn441xjUQUa3Jcyv37gyrBPB4b13'
 
 COINDAEMON_TRUSTED_HOST = 'litecoind'
 COINDAEMON_TRUSTED_PORT = 19444

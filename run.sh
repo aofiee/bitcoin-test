@@ -381,6 +381,7 @@ fi
 if [ "$NODEMNG" = "true" ]; then
     echo "Starting bitcoin node manager server"
     docker-compose up bitcoin-node-manager -d
+    docker-compose up bitcoin-node-manager2 -d
 fi
 
 if [ "$STRATUM" = "true" ]; then

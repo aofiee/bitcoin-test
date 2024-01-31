@@ -57,13 +57,13 @@ services:
       - bitcoin
   litecoind:
     extends:
-      file: dockerfile/litecoin/docker-compose.yml
+      file: dockerfile/litecoin/docker-compose.image.yml
       service: litecoind
     networks:
       - bitcoin
   litecoind2:
     extends:
-      file: dockerfile/litecoin2/docker-compose.yml
+      file: dockerfile/litecoin2/docker-compose.image.yml
       service: litecoind2
     networks:
       - bitcoin

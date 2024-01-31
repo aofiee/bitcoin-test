@@ -1,0 +1,25 @@
+version: "3.7"
+services:
+  litecoind:
+    container_name: litecoind
+    image: aofiee/litecoin_core:latest
+    ports:
+      - 9332:9332
+      - 9333:9333 
+      - 19332:19332 
+      - 19333:19333
+      - 19443:19443
+      - 19444:19444
+    volumes:
+      - ../../config/litecoin.conf:/data/litecoin.conf
+      - ../../litecoin-data:/home/litecoin/data
+    restart: always
+    entrypoint: ["litecoind"]
+    command:
+      -chain=regtest
+      -printtoconsole
+      -dnsseed=0
+      -conf=/data/litecoin.conf
+      -datadir=/home/litecoin/data
+    networks:
+      - bitcoin
