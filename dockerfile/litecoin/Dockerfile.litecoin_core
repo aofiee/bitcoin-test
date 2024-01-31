@@ -4,6 +4,7 @@ EXPOSE 9332 9333 19332 19333 19443 19444
 # docker run --network=bitcoin -it ubuntu:20.04
 WORKDIR /app
 ENV LITECOIN_DATA=/home/litecoin/.litecoin
+ENV BDB_PREFIX=/app/db4
 
 RUN dpkg --add-architecture armhf
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
@@ -30,11 +31,13 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 
 RUN git clone https://github.com/litecoin-project/litecoin.git .
 RUN ./contrib/install_db4.sh `pwd`
-RUN export BDB_PREFIX='/app/db4'
+
 
 RUN ./autogen.sh && \
     ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" --prefix=${LITECOIN_DATA} && \
-    make -j "$(($(nproc)+1))" NO_QT=1 NO_QR=1 NO_ZMQ=1 NO_SQLITE=1 NO_UPNP=1
+    make -j "$(($(nproc)+1))" NO_QT=1 NO_QR=1 NO_ZMQ=1 NO_SQLITE=1 NO_UPNP=1 && \
+    make install && \
+    rm -rf /app
 
 VOLUME ["/home/litecoin/.litecoin"]
 
