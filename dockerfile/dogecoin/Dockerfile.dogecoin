@@ -1,6 +1,42 @@
 FROM ubuntu:22.04
 
+ENV BDB_PREFIX=/app/db5
+ENV DOGECOIN_DATA=/home/dogecoin/.dogecoin
+
+EXPOSE 22555 22556 44555 44556 18332 18444
 WORKDIR /app
 
 RUN dpkg --add-architecture armhf
-RUN git clone https://github.com/dogecoin/dogecoin.git
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+    git \
+    autoconf \
+    automake \
+    bsdmainutils \
+    clisp-module-berkeley-db \
+    g++ \
+    libtool \
+    make \
+    pkg-config \
+    patch \
+    bzip2 \
+    xz-utils \
+    libdb++-dev \
+    libssl-dev \
+    libevent-dev \
+    libfmt-dev \
+    libboost-all-dev \
+    curl \
+    iputils-ping \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/dogecoin/dogecoin.git .
+RUN ./contrib/install_db5.sh `pwd`
+
+RUN ./autogen.sh && \
+    ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-5.3" BDB_CFLAGS="-I${BDB_PREFIX}/include" --prefix=${DOGECOIN_DATA} && \
+    make -j "$(($(nproc)+1))" NO_QT=1 NO_QR=1 NO_ZMQ=1 NO_SQLITE=1 NO_UPNP=1 && \
+    make install
+
+WORKDIR ${DOGECOIN_DATA}
+
+ENTRYPOINT [ "dogecoind" ]
